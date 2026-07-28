@@ -1,11 +1,16 @@
 #!/bin/bash
 # MAPS6 Raspberry Pi Startup Script
 
-DATA_DIR="/home/pi/maps6_data"
+DATA_DIR="/home/pi/MAPS6_system/data"
 
 echo "=========================================="
 echo "Starting MAPS6 System..."
 echo "=========================================="
+
+if [ -f "maps6_v700.tar" ]; then
+    echo "Loading docker image from maps6_v700.tar..."
+    docker load -i maps6_v700.tar
+fi
 
 mkdir -p "$DATA_DIR"
 docker rm -f maps6-nbiot-wifi 2>/dev/null || true
