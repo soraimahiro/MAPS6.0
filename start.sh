@@ -23,9 +23,17 @@ docker run -itd --restart unless-stopped \
     -v "$DATA_DIR":/mnt/SD \
     maps6_v700:latest
 
+# 取得容器狀態與本機 IP
+sleep 2
+STATUS=$(docker inspect -f '{{.State.Status}}' maps6-nbiot-wifi 2>/dev/null || echo "unknown")
+IP=$(hostname -I | awk '{print $1}')
+if [ -z "$IP" ]; then
+    IP="localhost"
+fi
+
 echo ""
-echo "MAPS6 container started successfully."
+echo "MAPS6 container status: $STATUS"
 echo "Data directory: $DATA_DIR"
-echo "Web dashboard: http://<RaspberryPi-IP>:5000"
+echo "Web dashboard: http://${IP}:5000"
 echo "View logs: docker logs maps6-nbiot-wifi -f"
 echo "=========================================="
