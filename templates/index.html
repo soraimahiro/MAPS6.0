@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAPS6 空氣品質監測儀表板</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a5;
+            --accent-green: #2ecc71;
+            --accent-blue: #3498db;
+            --border-color: #2c2c35;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-unit {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>MAPS 6.0 數據監控儀表板</h1>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Device ID: <span id="device-id">載入中...</span></div>
+            </div>
+            <div class="status-badge">
+                <span style="width:8px; height:8px; border-radius:50%; background-color:#2ecc71; display:inline-block;"></span>
+                系統運行中
+            </div>
+        </header>
+
+        <div class="sensor-grid">
+            <div class="card">
+                <div class="card-title">溫度 (Temperature)</div>
+                <div><span class="card-value" id="val-temp">--</span><span class="card-unit">°C</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">相對濕度 (Humidity)</div>
+                <div><span class="card-value" id="val-humi">--</span><span class="card-unit">%</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">二氧化碳 (CO2)</div>
+                <div><span class="card-value" id="val-co2">--</span><span class="card-unit">ppm</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">揮發性有機物 (TVOC)</div>
+                <div><span class="card-value" id="val-tvoc">--</span><span class="card-unit">ppb</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">細懸浮微粒 (PM2.5)</div>
+                <div><span class="card-value" id="val-pm25">--</span><span class="card-unit">μg/m³</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">懸浮微粒 (PM1.0)</div>
+                <div><span class="card-value" id="val-pm1">--</span><span class="card-unit">μg/m³</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">懸浮微粒 (PM10)</div>
+                <div><span class="card-value" id="val-pm10">--</span><span class="card-unit">μg/m³</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">環境照度 (Illuminance)</div>
+                <div><span class="card-value" id="val-lux">--</span><span class="card-unit">Lux</span></div>
+            </div>
+        </div>
+
+        <footer>
+            更新時間: <span id="last-update">--</span>
+        </footer>
+    </div>
+
+    <script>
+        function updateStatus() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(res => {
+                    if(res.success && res.data) {
+                        const d = res.data;
+                        document.getElementById('val-temp').innerText = d.TEMP !== undefined ? d.TEMP : '--';
+                        document.getElementById('val-humi').innerText = d.HUMI !== undefined ? d.HUMI : '--';
+                        document.getElementById('val-co2').innerText = d.CO2 !== undefined ? d.CO2 : '--';
+                        document.getElementById('val-tvoc').innerText = d.TVOC !== undefined ? d.TVOC : '--';
+                        document.getElementById('val-pm25').innerText = d['PM2.5_AE'] !== undefined ? d['PM2.5_AE'] : '--';
+                        document.getElementById('val-pm1').innerText = d['PM1.0_AE'] !== undefined ? d['PM1.0_AE'] : '--';
+                        document.getElementById('val-pm10').innerText = d['PM10.0_AE'] !== undefined ? d['PM10.0_AE'] : '--';
+                        document.getElementById('val-lux').innerText = d.Illuminance !== undefined ? d.Illuminance : '--';
+                        if(res.device_id) {
+                            document.getElementById('device-id').innerText = res.device_id;
+                        }
+                        document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        updateStatus();
+        setInterval(updateStatus, 3000);
+    </script>
+</body>
+</html>
