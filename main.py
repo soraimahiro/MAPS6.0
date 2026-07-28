@@ -98,7 +98,7 @@ def save_sd_task():
             if sensor_data is None:
                 continue
             os.makedirs(path, exist_ok=True)
-            time_pairs = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S").split(' ')
+            time_pairs = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(' ')
             data_list = [DEVIDE_ID, time_pairs[0], time_pairs[1], sensor_data.get('TEMP', 0), sensor_data.get('HUMI', 0), sensor_data.get('PM2.5_AE', 0),
                          sensor_data.get('PM1.0_AE', 0), sensor_data.get('PM10.0_AE', 0), sensor_data.get(
                              'Illuminance', 0), sensor_data.get('CO2', 0),  sensor_data.get('TVOC', 0),
