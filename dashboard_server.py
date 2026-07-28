@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
 from flask import Flask, jsonify, render_template
+
+# Silence Flask / Werkzeug HTTP access logs
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 app = Flask(__name__, template_folder='templates')
 main_sensor_data_ref = None

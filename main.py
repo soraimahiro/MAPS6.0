@@ -176,7 +176,7 @@ def check_connection(sim7000e_tcp):
     global connectionState
     global nbiot_detected
 
-    if(not os.system('ping www.google.com -q -c 1  > /dev/null')):
+    if(not os.system('ping www.google.com -q -c 1 -w 2 > /dev/null 2>&1')):
         connectionState = ConnectionState.WIFI
     elif(nbiot_detected and sim7000e_tcp and sim7000e_tcp.network_chkAttach()):
         connectionState = ConnectionState.NBIOT
@@ -208,24 +208,13 @@ def check_gps_csq(sim7000e_tcp):
 
 
 if __name__ == '__main__':
+    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
     m_serial = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=0.05)
 
-    logger.info(f'UPLOAD_INTERVAL: {UPLOAD_INTERVAL}')
-    logger.info(f'GET_SENSOR_DATA_INTERVAL: {GET_SENSOR_DATA_INTERVAL}')
-    logger.info(f'CHECK_WIFI_INTERVAL: {CHECK_WIFI_INTERVAL}')
     logger.info(f'DEVIDE_ID: {DEVIDE_ID}')
     logger.info(f'MAPS_PI_VERSION: {MAPS_PI_VERSION}')
-    logger.info(f'RPI_APP_ID: {APP_ID}')
     logger.info(f'LASS_REST_URL: {LASS_REST_URL}')
-    logger.info(f'MQTT BROKER: {BROKER}')
-    logger.info(f'MQTT_PORT: {MQTT_PORT}')
-    logger.info(f'MQTT_ID: {MQTT_ID}')
-    logger.info(f'MQTT KEEPALIVE: {KEEPALIVE}')
-    logger.info(f'MQTT USERNAME: {USERNAME}')
-    logger.info(f'MQTT PASSWORD: {PASSWORD}')
-    logger.info(f'MQTT CLEAR_SESSION: {CLEAR_SESSION}')
-    logger.info(f'MQTT TOPIC: {TOPIC}')
-    logger.info(f'MQTT Publish QOS: {QOS}')
 
     # Init Web Dashboard Server (Port 5000)
     dashboard_server.init_dashboard_app(sensor_data, DEVIDE_ID)
@@ -233,13 +222,12 @@ if __name__ == '__main__':
         target=lambda: dashboard_server.app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False),
         name="dashboard_web"
     )
-    dashboard_thread.setDaemon(True)
+    dashboard_thread.daemon = True
     dashboard_thread.start()
     logger.info("Web Dashboard Server started on Port 5000")
-    logging.getLogger().setLevel(logging.INFO)
 
     # wait MAPS Boot up
-    sleep(5)
+    sleep(2)
 
     m_sim7000e_tcp = None
     m_mqtt = None
@@ -260,22 +248,25 @@ if __name__ == '__main__':
         logger.info('LTE/NB-IoT module initialization disabled (ENABLE_LTE=False).')
 
     m_mega2560 = Mega2560(m_serial)  # Sensor, RTC, polling error count
-
+    logger.info("Initializing Mega2560 MCU over /dev/ttyAMA0...")
     m_mega2560.set_sensor_all_polling()
+    logger.info("Mega2560 polling enabled.")
 
     publish_timer = perf_counter() + UPLOAD_INTERVAL
     get_sensor_timer = 0
     check_wifi_timer = 0
 
     oled_task_t = threading.Thread(target=oled_task, name="oled_task_t")
-    oled_task_t.setDaemon(True)
+    oled_task_t.daemon = True
 
     save_sd_task_t = threading.Thread(
         target=save_sd_task, name="save_sd_task_t")
-    save_sd_task_t.setDaemon(True)
+    save_sd_task_t.daemon = True
 
     oled_task_t.start()
     save_sd_task_t.start()
+    logger.info("OLED & SD background tasks started.")
+    logger.info("Entering main loop...")
 
     while(True):
         try:
