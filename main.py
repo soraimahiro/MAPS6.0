@@ -159,16 +159,24 @@ def wifi_upload_to_lass():
     gps_data = f"|gps_lon={gps_lon}|gps_lat={gps_lat}"
     if(gps_lon != '-' and gps_lat != '-'):
         msg = gps_data + msg
-    logger.info(f'upload message: {msg}')
+    logger.info(f'Upload Message: {msg}')
 
     get_api = f'{LASS_REST_URL}?topic={APP_ID}&device_id={DEVIDE_ID}&key=NoKey&msg={msg}'
     try:
-        result = requests.get(get_api)
-        logger.info(f'HTTPS Get Result: {result}')
-        if(result.status_code == 200):
+        res = requests.get(get_api, timeout=10)
+        logger.info(f'LASS Upload Response Code: [{res.status_code}], Body: {res.text.strip()}')
+        sensor_data['last_upload_code'] = res.status_code
+        sensor_data['last_upload_time'] = datetime.now().strftime("%H:%M:%S")
+        if res.status_code == 200:
+            sensor_data['last_upload_status'] = 'SUCCESS'
             return True
+        else:
+            sensor_data['last_upload_status'] = f'HTTP {res.status_code}'
     except Exception as e:
-        logger.error(e, exc_info=True)
+        logger.error(f'LASS Upload Exception: {e}')
+        sensor_data['last_upload_status'] = 'ERROR'
+        sensor_data['last_upload_code'] = 0
+        sensor_data['last_upload_time'] = datetime.now().strftime("%H:%M:%S")
     return False
 
 

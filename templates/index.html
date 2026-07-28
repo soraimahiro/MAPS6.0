@@ -151,6 +151,10 @@
                 <div class="card-title">環境照度 (Illuminance)</div>
                 <div><span class="card-value" id="val-lux">--</span><span class="card-unit">Lux</span></div>
             </div>
+            <div class="card">
+                <div class="card-title">LASS 雲端上傳狀態</div>
+                <div><span class="card-value" style="font-size:24px; color:#2ecc71;" id="val-upload">--</span></div>
+            </div>
         </div>
 
         <footer>
@@ -173,6 +177,17 @@
                         document.getElementById('val-pm1').innerText = d['PM1.0_AE'] !== undefined ? d['PM1.0_AE'] : '--';
                         document.getElementById('val-pm10').innerText = d['PM10.0_AE'] !== undefined ? d['PM10.0_AE'] : '--';
                         document.getElementById('val-lux').innerText = d.Illuminance !== undefined ? d.Illuminance : '--';
+                        
+                        const uploadStatus = d.last_upload_status || '等待上傳';
+                        const uploadTime = d.last_upload_time ? ` (${d.last_upload_time})` : '';
+                        const uploadElem = document.getElementById('val-upload');
+                        uploadElem.innerText = uploadStatus + uploadTime;
+                        if (uploadStatus === 'SUCCESS') {
+                            uploadElem.style.color = '#2ecc71';
+                        } else if (uploadStatus.includes('HTTP') || uploadStatus === 'ERROR') {
+                            uploadElem.style.color = '#e74c3c';
+                        }
+                        
                         if(res.device_id) {
                             document.getElementById('device-id').innerText = res.device_id;
                         }
