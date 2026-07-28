@@ -139,3 +139,4 @@ cython_debug/
 *.bat
 test/
 arduino-1.8.9/
+*.tar
