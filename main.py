@@ -236,18 +236,18 @@ if __name__ == '__main__':
     dashboard_thread.setDaemon(True)
     dashboard_thread.start()
     logger.info("Web Dashboard Server started on Port 5000")
+    logging.getLogger().setLevel(logging.INFO)
 
     # wait MAPS Boot up
     sleep(5)
 
-    m_adapter = MAPS6Adapter(m_serial)  # UART bridge
-    m_mega2560 = Mega2560(m_serial)  # Sensor, RTC, polling error count
-
     m_sim7000e_tcp = None
     m_mqtt = None
+    m_adapter = None
 
     if ENABLE_LTE:
         try:
+            m_adapter = MAPS6Adapter(m_serial)  # UART bridge
             m_sim7000e_tcp = SIM7000E_TPC(m_adapter)  # SIM7000E TCP Command
             m_mqtt = MQTT(m_sim7000e_tcp, BROKER, MQTT_PORT, USERNAME,
                           PASSWORD, KEEPALIVE, MQTT_ID, CLEAR_SESSION)
@@ -258,6 +258,8 @@ if __name__ == '__main__':
                 logger.info('SIM7000E not detected.')
     else:
         logger.info('LTE/NB-IoT module initialization disabled (ENABLE_LTE=False).')
+
+    m_mega2560 = Mega2560(m_serial)  # Sensor, RTC, polling error count
 
     m_mega2560.set_sensor_all_polling()
 
