@@ -137,4 +137,6 @@ class Mega2560(object):
         if(not self.__wait_echo_command(MAPS_SET_POLLING_SENSOR_CMD)):
             return False
         bytes_data = self.__port.read(2)
+        if len(bytes_data) < 2:
+            return False
         return (bytes_data[0] == 0x00 and bytes_data[1] == 0xFF)

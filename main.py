@@ -210,7 +210,14 @@ def check_gps_csq(sim7000e_tcp):
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
-    m_serial = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=0.05)
+    
+    port_name = '/dev/ttyS0' if os.path.exists('/dev/ttyS0') else '/dev/ttyAMA0'
+    logger.info(f'Opening serial port: {port_name}')
+    try:
+        m_serial = serial.Serial(port_name, baudrate=115200, timeout=0.1)
+    except Exception as e:
+        logger.warning(f'Failed to open {port_name}, trying /dev/ttyAMA0: {e}')
+        m_serial = serial.Serial('/dev/ttyAMA0', baudrate=115200, timeout=0.1)
 
     logger.info(f'DEVIDE_ID: {DEVIDE_ID}')
     logger.info(f'MAPS_PI_VERSION: {MAPS_PI_VERSION}')
