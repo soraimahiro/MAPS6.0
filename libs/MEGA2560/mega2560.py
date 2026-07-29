@@ -157,3 +157,110 @@ class Mega2560(object):
 
         self.__port.write(bytes(data))
         return self.__wait_echo_command(cmd)
+
+    def set_status_led(self, state=1):
+        cmd = 0xBC
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.append(state // 256)
+        data.append(state % 256)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)
+
+    def set_pin_led_all(self, enable=True):
+        cmd = 0xC5
+        key = [0x53, 0x4C, 0x45, 0x44]  # SLED
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.extend(key)
+        data.append(1 if enable else 0)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)
+
+    def set_co2_calibration(self, enable=True):
+        cmd = 0xC0
+        key = [0x53, 0x38, 0x4C, 0x50]  # S8LP
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.extend(key)
+        data.append(1 if enable else 0)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)
+
+    def set_pms_reset(self, enable=True):
+        cmd = 0xC1
+        key = [0x50, 0x4D, 0x53, 0x33]  # PMS3
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.extend(key)
+        data.append(1 if enable else 0)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)
+
+    def set_pms_sleep(self, sleep=False):
+        cmd = 0xC2
+        key = [0x33, 0x30, 0x30, 0x33]  # 3003
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.extend(key)
+        data.append(0 if sleep else 1)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)
+
+    def set_rtc_datetime(self, dt=None):
+        if dt is None:
+            from datetime import datetime
+            dt = datetime.now()
+        cmd = 0xC7
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.append(dt.year % 100)
+        data.append(dt.month)
+        data.append(dt.day)
+        data.append(dt.hour)
+        data.append(dt.minute)
+        data.append(dt.second)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)

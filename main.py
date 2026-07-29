@@ -279,6 +279,14 @@ if __name__ == '__main__':
     logger.info("Mega2560 polling enabled.")
     m_mega2560.set_fan(True)
     logger.info("Mega2560 Cooling Fan turned ON.")
+    m_mega2560.set_pin_led_all(True)
+    m_mega2560.set_status_led(1)
+    logger.info("Mega2560 Status LED enabled.")
+    try:
+        m_mega2560.set_rtc_datetime()
+        logger.info("Mega2560 RTC hardware datetime synced.")
+    except Exception as e:
+        logger.warning(f"RTC datetime sync warning: {e}")
 
     publish_timer = perf_counter() + UPLOAD_INTERVAL
     get_sensor_timer = 0

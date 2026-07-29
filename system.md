@@ -90,12 +90,12 @@ MCU 對於部分控制指令要求隨附 4 Bytes 的驗證金鑰（例如 CO2 �
 
 ## 3. 新舊系統功能缺漏比對檢查表 (Missing Feature Checklist)
 
-| 功能 / 模組指令 | 指令碼 (CMD) | 舊版 `box_system` 狀態 | 新版 `new_system` 現狀 | 缺漏評估與建議 |
+| 功能 / 模組指令 | 指令码 (CMD) | 舊版 `box_system` 狀態 | 新版 `new_system` 現狀 | 缺漏評估與建議 |
 | :--- | :--- | :--- | :--- | :--- |
 | **感測器全讀取 (`GET_SENSOR_ALL`)** | `0xB5` | 已實作 | 已實作 | ✅ 功能完整對齊 |
 | **開啟感測器 Polling** | `0xC6` | 已實作 | 已實作 | ✅ 功能完整對齊 |
-| **散熱風扇控制 (`SET_PIN_FAN_ALL`)** | `0xC8` | 已實作 | **已修復補回** | ✅ 已補回 `set_fan(True)`，開機自動旋轉散熱 |
-| **外殼 LED 指示燈 (`SET_PIN_LED_ALL`)** | `0xC5` / `0xBC` | 已實作 | ⚠️ **缺漏中** | 影響外殼 LED 燈號顏色，建議後續可補上控制 |
-| **CO2 大氣校正 (`SET_PIN_CO2_CAL`)** | `0xC0` | 已實作 | ⚠️ **缺漏中** | 需手動觸發 CO2 大氣 400ppm 校正時可再呼叫 |
-| **PM2.5 重置與休眠 (`SET_PIN_PMS_SET`)** | `0xC1` / `0xC2` | 已實作 | ⚠️ **缺漏中** | 預設持續運作，若需省電休眠可補上 |
-| **RTC 時鐘寫入 (`SET_RTC_DATE_TIME`)** | `0xC7` | 已實作 | ⚠️ **缺漏中** | 目前直接採用樹莓派 Linux 本機系統時間 |
+| **散熱風扇控制 (`SET_PIN_FAN_ALL`)** | `0xC8` | 已實作 | **已補回實作** | ✅ 已補回 `set_fan(True)`，開機自動旋轉散熱 |
+| **外殼 LED 指示燈 (`SET_PIN_LED_ALL`)** | `0xC5` / `0xBC` | 已實作 | **已補回實作** | ✅ 已補回 `set_status_led(1)` 與 `set_pin_led_all(True)` 燈號控制 |
+| **CO2 大氣校正 (`SET_PIN_CO2_CAL`)** | `0xC0` | 已實作 | **已補回實作** | ✅ 已補回 `set_co2_calibration()` 手動校正介面 |
+| **PM2.5 重置與休眠 (`SET_PIN_PMS_SET`)** | `0xC1` / `0xC2` | 已實作 | **已補回實作** | ✅ 已補回 `set_pms_reset()` 與 `set_pms_sleep()` 重置/休眠介面 |
+| **RTC 時鐘寫入 (`SET_RTC_DATE_TIME`)** | `0xC7` | 已實作 | **已補回實作** | ✅ 已補回 `set_rtc_datetime()` 硬體時鐘同步功能 |
