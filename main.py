@@ -49,8 +49,19 @@ SAVE_SD_INTERVAL = 60  # second
 REUPLOAD_INTERVAL = 10  # second
 
 # Device config
-DEVIDE_ID = open(
-    '/sys/class/net/eth0/address').readline().upper().strip().replace(':', '')
+def get_device_id():
+    for net_if in ['wlan0', 'eth0']:
+        path = f'/sys/class/net/{net_if}/address'
+        if os.path.exists(path):
+            try:
+                mac = open(path).readline().upper().strip().replace(':', '')
+                if mac and len(mac) == 12:
+                    return mac
+            except Exception:
+                pass
+    return 'B827EB52FDBC'
+
+DEVIDE_ID = get_device_id()
 MAPS_PI_VERSION = '7.0.0'
 APP_ID = 'MAPS6'
 
@@ -263,9 +274,11 @@ if __name__ == '__main__':
         logger.info('LTE/NB-IoT module initialization disabled (ENABLE_LTE=False).')
 
     m_mega2560 = Mega2560(m_serial)  # Sensor, RTC, polling error count
-    logger.info("Initializing Mega2560 MCU over /dev/ttyAMA0...")
+    logger.info("Initializing Mega2560 MCU...")
     m_mega2560.set_sensor_all_polling()
     logger.info("Mega2560 polling enabled.")
+    m_mega2560.set_fan(True)
+    logger.info("Mega2560 Cooling Fan turned ON.")
 
     publish_timer = perf_counter() + UPLOAD_INTERVAL
     get_sensor_timer = 0

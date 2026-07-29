@@ -140,3 +140,20 @@ class Mega2560(object):
         if len(bytes_data) < 2:
             return False
         return (bytes_data[0] == 0x00 and bytes_data[1] == 0xFF)
+
+    def set_fan(self, enable=True):
+        cmd = 0xC8
+        key = [0x46, 0x41, 0x4E, 0x63]
+        data = bytearray()
+        data.append(MAPS_LEADING_CMD)
+        data.append(self.__Not(MAPS_LEADING_CMD))
+        data.append(cmd)
+        data.append(self.__Not(cmd))
+        data.extend(key)
+        data.append(1 if enable else 0)
+        checksum = self.__Calc_checkSum(data)
+        data.append(checksum)
+        data.append(self.__Not(checksum))
+
+        self.__port.write(bytes(data))
+        return self.__wait_echo_command(cmd)
