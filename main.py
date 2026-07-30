@@ -49,20 +49,9 @@ SAVE_SD_INTERVAL = 60  # second
 REUPLOAD_INTERVAL = 10  # second
 
 # Device config
-def get_device_id():
-    for net_if in ['wlan0', 'eth0']:
-        path = f'/sys/class/net/{net_if}/address'
-        if os.path.exists(path):
-            try:
-                mac = open(path).readline().upper().strip().replace(':', '')
-                if mac and len(mac) == 12:
-                    return mac
-            except Exception:
-                pass
-    return 'B827EB52FDBC'
-
-DEVIDE_ID = get_device_id()
-MAPS_PI_VERSION = '7.0.0'
+DEVIDE_ID = open(
+    '/sys/class/net/eth0/address').readline().upper().strip().replace(':', '')
+MAPS_PI_VERSION = '7.1.0'
 APP_ID = 'MAPS6'
 
 # HTTPS config (WiFi)
