@@ -1,10 +1,11 @@
 #!/bin/bash
 # MAPS6 Raspberry Pi Control & Startup Script
 
-DATA_DIR="/home/pi/MAPS6_system/data"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DATA_DIR="${SCRIPT_DIR}/data"
 CONTAINER_NAME="maps6-nbiot-wifi"
 IMAGE_NAME="maps6_v700:latest"
-TAR_FILE="maps6_v700.tar"
+TAR_FILE="${SCRIPT_DIR}/maps6_v700.tar"
 
 stop_system() {
     echo "Stopping MAPS6 container..."
