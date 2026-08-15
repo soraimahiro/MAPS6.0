@@ -13,12 +13,15 @@ stop_system() {
     echo "MAPS6 container stopped."
 }
 
-load_image() {
-    if [ -f "$TAR_FILE" ]; then
-        echo "Loading docker image from $TAR_FILE..."
-        docker load -i "$TAR_FILE"
-    else
-        echo "Warning: $TAR_FILE not found in current directory."
+load_image_if_missing() {
+    if ! docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
+        if [ -f "$TAR_FILE" ]; then
+            echo "Image $IMAGE_NAME not found. Loading from $TAR_FILE..."
+            docker load -i "$TAR_FILE"
+        else
+            echo "Error: Image $IMAGE_NAME not found and $TAR_FILE does not exist."
+            exit 1
+        fi
     fi
 }
 
@@ -27,6 +30,7 @@ start_system() {
     echo "Starting MAPS6 System..."
     echo "=========================================="
 
+    load_image_if_missing
     mkdir -p "$DATA_DIR"
     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
@@ -57,7 +61,7 @@ case "$1" in
     stop)
         stop_system
         ;;
-    reload|reload-image)
+    reload|reload-image|update)
         stop_system
         load_image
         start_system
@@ -69,10 +73,7 @@ case "$1" in
     logs)
         docker logs "$CONTAINER_NAME" -f
         ;;
-    *)
-        if [ -f "$TAR_FILE" ]; then
-            load_image
-        fi
+    start|*)
         start_system
         ;;
 esac
