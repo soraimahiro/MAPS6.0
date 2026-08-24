@@ -42,6 +42,8 @@ import dashboard_server
 
 # global variable
 ENABLE_LTE = False  # Set to True only if SIM7000E NB-IoT module is attached
+ENABLE_LASS_UPLOAD = False  # Set to True to enable LASS HTTP REST upload
+ENABLE_MQTT = False  # Set to True to enable MQTT upload to LASS server
 UPLOAD_INTERVAL = 300  # second
 GET_SENSOR_DATA_INTERVAL = 5  # second
 CHECK_WIFI_INTERVAL = 10  # second
@@ -309,20 +311,28 @@ if __name__ == '__main__':
                 publish_timer = perf_counter() + UPLOAD_INTERVAL
                 result = None
                 if(connectionState == ConnectionState.WIFI):  # using WiFi
-                    result = wifi_upload_to_lass()
+                    if ENABLE_LASS_UPLOAD:
+                        result = wifi_upload_to_lass()
+                    else:
+                        logger.info('LASS HTTP upload disabled (ENABLE_LASS_UPLOAD=False).')
+                        result = True
                     if(nbiot_detected and m_mqtt):
                         if(m_mqtt.connected()):
                             m_mqtt.disconnect()
                 elif(connectionState == ConnectionState.NBIOT):  # using NBIoT
-                    if(m_mqtt and not m_mqtt.connected()):
-                        logger.info(
-                            f'm_mqtt disconnect result: {m_mqtt.disconnect()}')
-                        logger.info(
-                            f'm_mqtt connect result: {m_mqtt.connect()}')
-                    result = NBIoT_publish_to_lass(m_mqtt)
+                    if ENABLE_MQTT:
+                        if(m_mqtt and not m_mqtt.connected()):
+                            logger.info(
+                                f'm_mqtt disconnect result: {m_mqtt.disconnect()}')
+                            logger.info(
+                                f'm_mqtt connect result: {m_mqtt.connect()}')
+                        result = NBIoT_publish_to_lass(m_mqtt)
+                    else:
+                        logger.info('MQTT upload disabled (ENABLE_MQTT=False).')
+                        result = True
                 else:
                     logger.info(
-                        'There is no valid network, please check if you can connect to WiFi or NB-IoT')
+                        'No network connection available.')
                 if(not result):
                     publish_timer = perf_counter() + REUPLOAD_INTERVAL
                     logger.info('Upload failed, try again in 10 seconds.')
