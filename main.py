@@ -72,6 +72,7 @@ QOS = 1
 sensor_data = {
     'TEMP': 0.0,
     'HUMI': 0.0,
+    'CPU_TEMP': 0.0,
     'PM2.5_AE': 0,
     'PM1.0_AE': 0,
     'PM10.0_AE': 0,
@@ -87,11 +88,20 @@ gps_lon = '-'
 nbiot_detected = False
 
 
+def get_cpu_temperature():
+    try:
+        with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
+            return round(int(f.read().strip()) / 1000.0, 1)
+    except Exception as e:
+        logger.error(f'Read CPU temperature failed: {e}')
+        return -1
+
+
 def save_sd_task():
     global sensor_data
 
     path = "/mnt/SD"
-    First_line_data = "Device ID,Date,Time,Temperature,Humidity,PM2.5_AE,PM1.0_AE,PM10.0_AE,Illuminance,CO2,TVOC,longitude,latitude"
+    First_line_data = "Device ID,Date,Time,Temperature,Humidity,CPU_Temp,PM2.5_AE,PM1.0_AE,PM10.0_AE,Illuminance,CO2,TVOC,longitude,latitude"
     while(True):
         try:
             sleep(SAVE_SD_INTERVAL)
@@ -99,8 +109,8 @@ def save_sd_task():
                 continue
             os.makedirs(path, exist_ok=True)
             time_pairs = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(' ')
-            data_list = [DEVIDE_ID, time_pairs[0], time_pairs[1], sensor_data.get('TEMP', 0), sensor_data.get('HUMI', 0), sensor_data.get('PM2.5_AE', 0),
-                         sensor_data.get('PM1.0_AE', 0), sensor_data.get('PM10.0_AE', 0), sensor_data.get(
+            data_list = [DEVIDE_ID, time_pairs[0], time_pairs[1], sensor_data.get('TEMP', 0), sensor_data.get('HUMI', 0), sensor_data.get('CPU_TEMP', 0),
+                         sensor_data.get('PM2.5_AE', 0), sensor_data.get('PM1.0_AE', 0), sensor_data.get('PM10.0_AE', 0), sensor_data.get(
                              'Illuminance', 0), sensor_data.get('CO2', 0),  sensor_data.get('TVOC', 0),
                          gps_lon, gps_lat]
             data = ','.join([str(d) for d in data_list])
@@ -326,6 +336,7 @@ if __name__ == '__main__':
                     sensor_data.update(new_data)
                     if(sensor_data.get('CO2') == 65535):
                         sensor_data['CO2'] = -1
+                sensor_data['CPU_TEMP'] = get_cpu_temperature()
                 logger.info('='*50)
                 for data in sensor_data:
                     logger.info(f'{data}: {sensor_data[data]}')

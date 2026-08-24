@@ -128,6 +128,10 @@
                 <div><span class="card-value" id="val-humi">--</span><span class="card-unit">%</span></div>
             </div>
             <div class="card">
+                <div class="card-title">CPU 溫度 (CPU Temp)</div>
+                <div><span class="card-value" id="val-cpu-temp">--</span><span class="card-unit">°C</span></div>
+            </div>
+            <div class="card">
                 <div class="card-title">二氧化碳 (CO2)</div>
                 <div><span class="card-value" id="val-co2">--</span><span class="card-unit">ppm</span></div>
             </div>
@@ -171,6 +175,7 @@
                         const d = res.data;
                         document.getElementById('val-temp').innerText = d.TEMP !== undefined ? d.TEMP : '--';
                         document.getElementById('val-humi').innerText = d.HUMI !== undefined ? d.HUMI : '--';
+                        document.getElementById('val-cpu-temp').innerText = d.CPU_TEMP !== undefined ? d.CPU_TEMP : '--';
                         document.getElementById('val-co2').innerText = d.CO2 !== undefined ? d.CO2 : '--';
                         document.getElementById('val-tvoc').innerText = d.TVOC !== undefined ? d.TVOC : '--';
                         document.getElementById('val-pm25').innerText = d['PM2.5_AE'] !== undefined ? d['PM2.5_AE'] : '--';
