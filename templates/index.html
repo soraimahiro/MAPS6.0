@@ -203,7 +203,8 @@
         }
 
         updateStatus();
-        setInterval(updateStatus, 3000);
+        const refreshInterval = {{ refresh_interval | default(5) }} * 1000;
+        setInterval(updateStatus, refreshInterval);
     </script>
 </body>
 </html>

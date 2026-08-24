@@ -244,7 +244,7 @@ if __name__ == '__main__':
     logger.info(f'LASS_REST_URL: {LASS_REST_URL}')
 
     # Init Web Dashboard Server (Port 5000)
-    dashboard_server.init_dashboard_app(sensor_data, DEVIDE_ID)
+    dashboard_server.init_dashboard_app(sensor_data, DEVIDE_ID, GET_SENSOR_DATA_INTERVAL)
     dashboard_thread = threading.Thread(
         target=lambda: dashboard_server.app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False),
         name="dashboard_web"
